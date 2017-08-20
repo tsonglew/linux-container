@@ -27,8 +27,8 @@ func main() {
                         },
                 },
 	}
-          // for kernel 3.13
-//        cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(1), Gid: uint32(1)}
+        // for kernel 3.13
+        // cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(1), Gid: uint32(1)}
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
