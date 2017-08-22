@@ -4,7 +4,7 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 // RunContainerInitProcess : First process in container
