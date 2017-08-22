@@ -2,6 +2,9 @@ xperiMoby
 .vscode
 .DS_Store
 
+# Dependences
+vendor
+
 # Binaries for programs and plugins
 *.exe
 *.dll
