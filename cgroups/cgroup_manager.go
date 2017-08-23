@@ -1,13 +1,13 @@
 package cgroups
 
 import (
-	"github.com/Sirupsen/logrus"
 	"github.com/kasheemlew/xperiMoby/cgroups/subsystems"
+	"github.com/sirupsen/logrus"
 )
 
 type CgroupManager struct {
 	Path     string
-	Resource *subsystems.Resourceconfig
+	Resource *subsystems.ResourceConfig
 }
 
 func NewCgroupManager(path string) *CgroupManager {
@@ -23,7 +23,7 @@ func (c *CgroupManager) Apply(pid int) error {
 	return nil
 }
 
-func (c *CgroupManager) Set(res *subsystems.Resourceconfig) error {
+func (c *CgroupManager) Set(res *subsystems.ResourceConfig) error {
 	for _, subSysIns := range subsystems.SubsystemsIns {
 		subSysIns.Set(c.Path, res)
 	}
@@ -36,4 +36,5 @@ func (c *CgroupManager) Destroy() error {
 			logrus.Warnf("remove cgroups fail %v", err)
 		}
 	}
+	return nil
 }

@@ -21,7 +21,7 @@ func FindCgroupMountpoint(subsystem string) string {
 		fields := strings.Split(txt, " ")
 		for _, opt := range strings.Split(fields[len(fields)-1], ",") {
 			if opt == subsystem {
-				return fiels[4]
+				return fields[4]
 			}
 		}
 	}
