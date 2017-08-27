@@ -56,8 +56,6 @@ var initCommand = cli.Command{
 	Usage: "Init container process run user's process in container",
 	Action: func(context *cli.Context) error {
 		logrus.Infof("init come on")
-		cmd := context.Args().Get(0)
-		logrus.Infof("command %s", cmd)
 		err := container.RunContainerInitProcess()
 		return err
 	},

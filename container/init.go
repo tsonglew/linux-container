@@ -18,7 +18,7 @@ func RunContainerInitProcess() error {
 	if cmdArray == nil || len(cmdArray) == 0 {
 		return fmt.Errorf("Run container get user command error, cmdArray is nil")
 	}
-	// setUpMount()
+	setUpMount()
 
 	path, err := exec.LookPath(cmdArray[0])
 	if err != nil {
@@ -33,7 +33,8 @@ func RunContainerInitProcess() error {
 }
 
 func readUserCommand() []string {
-	pipe := os.NewFile(uintptr(3), "pipe") // 0: stdin, 1: stdout, 2: stderr
+	// 0: stdin, 1: stdout, 2: stderr, 3 should be the first available
+	pipe := os.NewFile(uintptr(3), "pipe")
 	msg, err := ioutil.ReadAll(pipe)
 	if err != nil {
 		logrus.Errorf("init read pipe error %v", err)
@@ -44,7 +45,7 @@ func readUserCommand() []string {
 }
 
 func setUpMount() {
-	pwd, err := os.Getwd() // return a rooted path name corresponding to the current directory
+	pwd, err := os.Getwd()
 	if err != nil {
 		logrus.Errorf("Get current location err %v", err)
 		return
@@ -53,13 +54,14 @@ func setUpMount() {
 	pivotRoot(pwd)
 
 	defaultMountFlags := syscall.MS_NOEXEC | syscall.MS_NOSUID | syscall.MS_NODEV
-	// ********** source * target*fstype ********** flags *********** data
+	// func Mount(source string, target string, fstype string, flags uintptr, data string) (err error)
 	syscall.Mount("proc", "/proc", "proc", uintptr(defaultMountFlags), "")
 	syscall.Mount("tmpfs", "/dev", "tmpfs", syscall.MS_NOSUID|syscall.MS_STRICTATIME, "mode=755")
 }
 
 func pivotRoot(root string) error {
-	// "bind" means change the mount points but the same content
+	// "bind": Change mount point but not content
+	// func Mount(source string, target string, fstype string, flags uintptr, data string) (err error)
 	if err := syscall.Mount(root, root, "bind", syscall.MS_BIND|syscall.MS_REC, ""); err != nil {
 		return fmt.Errorf("Mount rootfs to itself error: %v", err)
 	}
@@ -70,7 +72,7 @@ func pivotRoot(root string) error {
 		return err
 	}
 	// pivot_root for new rootfs
-	//                       newroot * putold
+	// func PivotRoot(newroot string, putold string) (err error)
 	if err := syscall.PivotRoot(root, pivotDir); err != nil {
 		return fmt.Errorf("pivot_root %v", err)
 	}

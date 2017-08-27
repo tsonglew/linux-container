@@ -1,15 +1,15 @@
 package container
 
 import (
-	"github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
 	"syscall"
+
+	"github.com/sirupsen/logrus"
 )
 
 // NewParentProcess comment
 func NewParentProcess(tty bool) (*exec.Cmd, *os.File) {
-	// create read & write pipes
 	readPipe, writePipe, err := NewPipe()
 	if err != nil {
 		logrus.Errorf("New pipe error %v", err)
@@ -26,10 +26,11 @@ func NewParentProcess(tty bool) (*exec.Cmd, *os.File) {
 		cmd.Stderr = os.Stderr
 	}
 	cmd.ExtraFiles = []*os.File{readPipe}
+	cmd.Dir = "/root/busybox"
 	return cmd, writePipe
 }
 
-// create band new read & write pipes
+// NewPipe create read and write pipes
 func NewPipe() (*os.File, *os.File, error) {
 	read, write, err := os.Pipe()
 	if err != nil {

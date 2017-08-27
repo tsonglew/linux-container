@@ -18,7 +18,7 @@ func main() {
 	}
 
 	app.Before = func(context *cli.Context) error {
-		log.SetFormatter(&log.JSONFormatter{}) // Log as JSON
+		log.SetFormatter(&log.JSONFormatter{})
 		log.SetOutput(os.Stdout)
 		return nil
 	}
