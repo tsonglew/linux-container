@@ -9,6 +9,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ContainerInfo record information about the container
+type ContainerInfo struct {
+	Pid         string `json:"pid"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Command     string `json:"command"`
+	CreatedTime string `json:"createTime"`
+	Status      string `json:"status"`
+}
+
+var (
+	RUNNING             = "running"
+	STOP                = "stopped"
+	Exit                = "exited"
+	DefaultInfoLocation = "/var/run/xperiMoby/%s/"
+	ConfigName          = "config.json"
+)
+
 // NewParentProcess comment
 func NewParentProcess(tty bool, volume string) (*exec.Cmd, *os.File) {
 	readPipe, writePipe, err := NewPipe()
