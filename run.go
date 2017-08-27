@@ -27,6 +27,10 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
 	cgroupManager.Apply(parent.Process.Pid)
 	sendInitCommand(comArray, writePipe)
 	parent.Wait()
+	mntURL := "/root/mnt/"
+	rootURL := "/root/"
+	container.DeleteWorkSpace(rootURL, mntURL)
+	os.Exit(0)
 }
 
 func sendInitCommand(comArray []string, writePipe *os.File) {
