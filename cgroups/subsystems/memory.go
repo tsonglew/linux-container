@@ -8,13 +8,14 @@ import (
 	"strconv"
 )
 
-// memory subsystem
+// MemorySubSystem is an implement of interface SubSystem
 type MemorySubSystem struct {
 }
 
-// set cgroup limit according to cgroupPath
+// Set set cgroup limit according to cgroupPath
 func (s *MemorySubSystem) Set(cgroupPath string, res *ResourceConfig) error {
-	if subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true); err == nil {
+	subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true)
+	if err == nil {
 		if res.MemoryLimit != "" {
 			// set cgroup memory_limit and write it to memory.limit_in_bytes
 			if err := ioutil.WriteFile(path.Join(subsysCgroupPath, "memory.limit_in_bytes"), []byte(res.MemoryLimit), 0644); err != nil {
@@ -22,34 +23,33 @@ func (s *MemorySubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 			}
 		}
 		return nil
-	} else {
-		return err
 	}
+	return err
 }
 
-// delete cgroup according to cgroupPath
+// Remove delete cgroup according to cgroupPath
 func (s *MemorySubSystem) Remove(cgroupPath string) error {
-	if subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil {
-		// remove the directory
+	subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false)
+	if err == nil {
 		return os.Remove(subsysCgroupPath)
-	} else {
-		return err
 	}
+	return err
 }
 
-// add process to cgroup according to cgroupPath
+// Apply add process to cgroup according to cgroupPath
 func (s *MemorySubSystem) Apply(cgroupPath string, pid int) error {
-	if subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil {
+	subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false)
+	if err == nil {
 		// wirte pid to task of cgroup in virtual file system
 		if err := ioutil.WriteFile(path.Join(subsysCgroupPath, "tasks"), []byte(strconv.Itoa(pid)), 0644); err != nil {
-			fmt.Errorf("set cgroup fail %v ", err)
+			return fmt.Errorf("set cgroup fail %v ", err)
 		}
 		return nil
-	} else {
-		return fmt.Errorf("get cgroup %s error: %v", cgroupPath, err)
 	}
+	return fmt.Errorf("get cgroup %s error: %v", cgroupPath, err)
 }
 
+// Name returns subsystem name
 func (s *MemorySubSystem) Name() string {
 	return "memory"
 }

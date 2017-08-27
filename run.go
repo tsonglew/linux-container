@@ -26,10 +26,12 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, volume str
 	// add container processes to cgroup
 	cgroupManager.Apply(parent.Process.Pid)
 	sendInitCommand(comArray, writePipe)
-	parent.Wait()
-	mntURL := "/root/mnt/"
-	rootURL := "/root/"
-	container.DeleteWorkSpace(rootURL, mntURL, volume)
+	if tty {
+		parent.Wait()
+		mntURL := "/root/mnt/"
+		rootURL := "/root/"
+		container.DeleteWorkSpace(rootURL, mntURL, volume)
+	}
 	os.Exit(0)
 }
 

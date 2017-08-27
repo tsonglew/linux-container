@@ -8,41 +8,46 @@ import (
 	"strconv"
 )
 
-type CpusetSubSystem struct {
+// CPUSetSubSystem is an implement of interface SubSystem
+type CPUSetSubSystem struct {
 }
 
-func (s *CpusetSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
-	if subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true); err == nil {
-		if res.CpuSet != "" {
-			if err := ioutil.WriteFile(path.Join(subsysCgroupPath, "cpuset.cpus"), []byte(res.CpuSet), 0644); err != nil {
-				return fmt.Errorf("set cgroup cpuset fail %v", err)
+// Set set cgroup limit according to cgroupPath
+func (s *CPUSetSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
+	subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true)
+	if err == nil {
+		if res.CPUSet != "" {
+			if err := ioutil.WriteFile(path.Join(subsysCgroupPath, "CPUset.CPUs"), []byte(res.CPUSet), 0644); err != nil {
+				return fmt.Errorf("set cgroup CPUset fail %v", err)
 			}
 		}
 		return nil
-	} else {
-		return err
 	}
+	return err
 }
 
-func (s *CpusetSubSystem) Remove(cgroupPath string) error {
-	if subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil {
+// Remove delete cgroup according to cgroupPath
+func (s *CPUSetSubSystem) Remove(cgroupPath string) error {
+	subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false)
+	if err == nil {
 		return os.RemoveAll(subsysCgroupPath)
-	} else {
-		return err
 	}
+	return err
 }
 
-func (s *CpusetSubSystem) Apply(cgroupPath string, pid int) error {
-	if subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false); err == nil {
+// Apply add process to cgroup according to cgroupPath
+func (s *CPUSetSubSystem) Apply(cgroupPath string, pid int) error {
+	subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, false)
+	if err == nil {
 		if err := ioutil.WriteFile(path.Join(subsysCgroupPath, "tasks"), []byte(strconv.Itoa(pid)), 0644); err != nil {
 			return fmt.Errorf("set cgroup proc fail %v", err)
 		}
 		return nil
-	} else {
-		return fmt.Errorf("get cgroup %s error: %v", cgroupPath, err)
 	}
+	return fmt.Errorf("get cgroup %s error: %v", cgroupPath, err)
 }
 
-func (s *CpusetSubSystem) Name() string {
-	return "cpuset"
+// Name returns subsystem name
+func (s *CPUSetSubSystem) Name() string {
+	return "CPUset"
 }

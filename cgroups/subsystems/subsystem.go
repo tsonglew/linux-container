@@ -1,11 +1,13 @@
 package subsystems
 
+// ResourceConfig contains the resource limits items
 type ResourceConfig struct {
 	MemoryLimit string // memory limit
-	CpuShare    string // cpu time-sharing slices
-	CpuSet      string // number of cpu cores
+	CPUShare    string // CPU time-sharing slices
+	CPUSet      string // number of CPU cores
 }
 
+// Subsystem describes methods for subsystem instances
 type Subsystem interface {
 	Name() string
 	Set(path string, res *ResourceConfig) error
@@ -14,9 +16,10 @@ type Subsystem interface {
 }
 
 var (
+	// SubsystemsIns is implements of interface Subsystem
 	SubsystemsIns = []Subsystem{
-		&CpusetSubSystem{},
+		&CPUSetSubSystem{},
 		&MemorySubSystem{},
-		&CpuSubSystem{},
+		&CPUSubSystem{},
 	}
 )

@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// FindCgroupMountpoint get mountpoint path to a cgroup
 func FindCgroupMountpoint(subsystem string) string {
 	f, err := os.Open("/proc/self/mountinfo")
 	if err != nil {
@@ -31,16 +32,17 @@ func FindCgroupMountpoint(subsystem string) string {
 	return ""
 }
 
+// GetCgroupPath get the path of or create a cgroup
 func GetCgroupPath(subsystem string, cgroupPath string, autoCreate bool) (string, error) {
 	cgroupRoot := FindCgroupMountpoint(subsystem)
-	if _, err := os.Stat(path.Join(cgroupRoot, cgroupPath)); err == nil || (autoCreate && os.IsNotExist(err)) {
+	_, err := os.Stat(path.Join(cgroupRoot, cgroupPath))
+	if err == nil || (autoCreate && os.IsNotExist(err)) {
 		if os.IsNotExist(err) {
 			if err := os.Mkdir(path.Join(cgroupRoot, cgroupPath), 0755); err != nil {
 				return "", fmt.Errorf("error create cgroup %v", err)
 			}
 		}
 		return path.Join(cgroupRoot, cgroupPath), nil
-	} else {
-		return "", fmt.Errorf("cgroup path error %v", err)
 	}
+	return "", fmt.Errorf("cgroup path error %v", err)
 }
