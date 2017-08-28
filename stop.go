@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strconv"
 	"syscall"
 
@@ -45,18 +46,19 @@ func stopContainer(containerName string) {
 	}
 }
 
-func getContainerInfoByName(containerName string) (*container.ContainerInfo, error) {
-	dirURL := fmt.Sprintf(container.DefaultInfoLocation, containerName)
-	configFilePath := dirURL + container.ConfigName
-	contentBytes, err := ioutil.ReadFile(configFilePath)
+func removeContainer(containerName string) {
+	containerInfo, err := getContainerInfoByName(containerName)
 	if err != nil {
-		logrus.Errorf("Read file %s error %v", configFilePath, err)
-		return nil, err
+		logrus.Errorf("Get container %s info error %v", containerName, err)
+		return
 	}
-	var containerInfo container.ContainerInfo
-	if err := json.Unmarshal(contentBytes, &containerInfo); err != nil {
-		logrus.Errorf("GetContainerInfoByName unmarshal error %v", err)
-		return nil, err
+	if containerInfo.Status != container.STOP {
+		logrus.Errorf("Couldn't remove running container")
+		return
 	}
-	return &containerInfo, nil
+	dirURL := fmt.Sprintf(container.DefaultInfoLocation, containerName)
+	if err := os.RemoveAll(dirURL); err != nil {
+		logrus.Errorf("Remove file %s error %v", dirURL, err)
+		return
+	}
 }
