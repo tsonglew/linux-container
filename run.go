@@ -17,7 +17,7 @@ import (
 
 // Run envokes the command
 func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, volume, containerName string) {
-	parent, writePipe := container.NewParentProcess(tty, volume)
+	parent, writePipe := container.NewParentProcess(tty, volume, containerName)
 	if parent == nil {
 		logrus.Errorf("New parent process error")
 		return
@@ -30,7 +30,7 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, volume, co
 		logrus.Errorf("Record container info error %v", err)
 		return
 	}
-	cgroupManager := cgroups.NewCgroupManager("xperiMoby-cgroup")
+	cgroupManager := cgroups.NewCgroupManager("/root/xperi/xperiMoby-cgroup")
 	defer cgroupManager.Destroy()
 	cgroupManager.Set(res)
 	// add container processes to cgroup
@@ -38,8 +38,8 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, volume, co
 	sendInitCommand(comArray, writePipe)
 	if tty {
 		parent.Wait()
-		mntURL := "/root/mnt/"
-		rootURL := "/root/"
+		mntURL := "/root/xperi/mnt/"
+		rootURL := "/root/xperi/"
 		container.DeleteWorkSpace(rootURL, mntURL, volume)
 		deleteContainerInfo(containerName)
 	}
@@ -50,13 +50,13 @@ func sendInitCommand(comArray []string, writePipe *os.File) {
 	command := strings.Join(comArray, " ")
 	logrus.Infof("command all is %s", command)
 	writePipe.WriteString(command)
-	writePipe.Close()
+	defer writePipe.Close()
 }
 
 func recordContainerInfo(containerPID int, commandArray []string, containerName string) (string, error) {
 	// generate container ID
 	id := randStringBytes(10)
-	createTime := time.Now().Format("2000-01-01 01:01:01")
+	createTime := time.Now().Format("2006-01-01 13:01:01")
 	command := strings.Join(commandArray, " ")
 	if containerName == "" {
 		containerName = id

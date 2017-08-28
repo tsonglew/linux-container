@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/kasheemlew/xperiMoby/cgroups/subsystems"
 	"github.com/kasheemlew/xperiMoby/container"
@@ -57,13 +58,14 @@ var runCommand = cli.Command{
 			CPUShare:    context.String("CPUshare"),
 		}
 		tty := context.Bool("ti")
-		volume := context.String("v")
+		logrus.Infof("create tty? %v", tty)
 		detach := context.Bool("d")
-		containerName := context.String("name")
-
 		if tty && detach {
 			return fmt.Errorf("ti and d parameter can not both provided")
 		}
+
+		volume := context.String("v")
+		containerName := context.String("name")
 		Run(tty, cmdArray, resConf, volume, containerName)
 		return nil
 	},
@@ -74,8 +76,7 @@ var initCommand = cli.Command{
 	Usage: "Init container process run user's process in container",
 	Action: func(context *cli.Context) error {
 		logrus.Infof("init come on")
-		err := container.RunContainerInitProcess()
-		return err
+		return container.RunContainerInitProcess()
 	},
 }
 
@@ -97,6 +98,42 @@ var listCommand = cli.Command{
 	Usage: "list all the containers",
 	Action: func(context *cli.Context) error {
 		ListContainers()
+		return nil
+	},
+}
+
+var logCommand = cli.Command{
+	Name:  "logs",
+	Usage: "print logs of a container",
+	Action: func(context *cli.Context) error {
+		if len(context.Args()) < 1 {
+			return fmt.Errorf("Please input your container name")
+		}
+		containerName := context.Args().Get(0)
+		logContainer(containerName)
+		return nil
+	},
+}
+
+var execCommand = cli.Command{
+	Name:  "exec",
+	Usage: "exec a command into container",
+	Action: func(context *cli.Context) error {
+		if os.Getenv(ENV_EXEC_PID) != "" {
+			logrus.Infof("pid callback group-id %s", os.Getgid())
+			return nil
+		}
+		if len(context.Args()) < 2 {
+			return fmt.Errorf("Missing container name or command")
+		}
+		containerName := context.Args().Get(0)
+		var commandArray []string
+
+		// Tail returns the rest of the arguments (not the first one)
+		for _, arg := range context.Args().Tail() {
+			commandArray = append(commandArray, arg)
+		}
+		ExecContainer(containerName, commandArray)
 		return nil
 	},
 }

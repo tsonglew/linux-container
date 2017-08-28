@@ -22,7 +22,7 @@ func RunContainerInitProcess() error {
 
 	path, err := exec.LookPath(cmdArray[0])
 	if err != nil {
-		logrus.Errorf("Exec look path error %v", err)
+		logrus.Errorf("Exec loop path error %v", err)
 		return err
 	}
 	logrus.Infof("Find path %s", path)
@@ -35,6 +35,7 @@ func RunContainerInitProcess() error {
 func readUserCommand() []string {
 	// 0: stdin, 1: stdout, 2: stderr, 3 should be the first available
 	pipe := os.NewFile(uintptr(3), "pipe")
+	defer pipe.Close()
 	msg, err := ioutil.ReadAll(pipe)
 	if err != nil {
 		logrus.Errorf("init read pipe error %v", err)
