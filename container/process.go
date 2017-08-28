@@ -23,7 +23,7 @@ type ContainerInfo struct {
 var (
 	RUNNING             = "running"
 	STOP                = "stopped"
-	Exit                = "exited"
+	EXIT                = "exited"
 	DefaultInfoLocation = "/var/run/xperiMoby/%s/"
 	ConfigName          = "config.json"
 	ContainerLogFile    = "container.log"

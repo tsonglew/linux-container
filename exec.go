@@ -13,8 +13,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const ENV_EXEC_PID = "xperiMoby_pid"
-const ENV_EXEC_CMD = "xperiMoby_cmd"
+// EnvExecPid get pid when invoking ExecCommand
+const EnvExecPid = "xperiMoby_pid"
+
+// EnvExecCmd get exec command when invoking ExecCommand
+const EnvExecCmd = "xperiMoby_cmd"
 
 // ExecContainer enters certain ns
 func ExecContainer(containerName string, comArray []string) {
@@ -32,8 +35,8 @@ func ExecContainer(containerName string, comArray []string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	os.Setenv(ENV_EXEC_PID, pid)
-	os.Setenv(ENV_EXEC_CMD, cmdStr)
+	os.Setenv(EnvExecPid, pid)
+	os.Setenv(EnvExecCmd, cmdStr)
 
 	if err := cmd.Run(); err != nil {
 		logrus.Errorf("Exec container %s error %v", containerName, err)
