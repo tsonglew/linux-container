@@ -43,22 +43,29 @@ var runCommand = cli.Command{
 			Name:  "name",
 			Usage: "container name",
 		},
+		cli.StringSliceFlag{
+			Name:  "e",
+			Usage: "set environment",
+		},
 	},
 	Action: func(context *cli.Context) error {
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("Missing container command")
 		}
-		var cmdArray []string
-		for _, arg := range context.Args() {
-			cmdArray = append(cmdArray, arg)
-		}
+
 		resConf := &subsystems.ResourceConfig{
 			MemoryLimit: context.String("m"),
 			CPUSet:      context.String("CPUset"),
 			CPUShare:    context.String("CPUshare"),
 		}
+
+		imageName := context.Args().Get(0)
+		logrus.Infof("use iamge: %s", imageName)
+		cmdArray := context.Args().Tail()
+		logrus.Infof("all command: %v", cmdArray)
+
 		tty := context.Bool("ti")
-		logrus.Infof("create tty? %v", tty)
+		logrus.Infof("create tty: %v", tty)
 		detach := context.Bool("d")
 		if tty && detach {
 			return fmt.Errorf("ti and d parameter can not both provided")
@@ -66,7 +73,8 @@ var runCommand = cli.Command{
 
 		volume := context.String("v")
 		containerName := context.String("name")
-		Run(tty, cmdArray, resConf, volume, containerName)
+		envSlice := context.StringSlice("e")
+		Run(tty, resConf, volume, containerName, imageName, cmdArray, envSlice)
 		return nil
 	},
 }
@@ -84,11 +92,12 @@ var commitCommand = cli.Command{
 	Name:  "commit",
 	Usage: "commit a container into image",
 	Action: func(context *cli.Context) error {
-		if len(context.Args()) < 1 {
-			return fmt.Errorf("Missing image name")
+		if len(context.Args()) < 2 {
+			return fmt.Errorf("Missing image name or container name")
 		}
-		imageName := context.Args().Get(0)
-		commitContainer(imageName)
+		containerName := context.Args().Get(0)
+		imageName := context.Args().Get(1)
+		commitContainer(containerName, imageName)
 		return nil
 	},
 }

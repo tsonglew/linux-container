@@ -33,6 +33,8 @@ func ExecContainer(containerName string, comArray []string) {
 
 	os.Setenv(EnvExecPid, pid)
 	os.Setenv(EnvExecCmd, cmdStr)
+	containerEnvs := getEnvByPid(pid)
+	cmd.Env = append(os.Environ(), containerEnvs...)
 
 	if err := cmd.Run(); err != nil {
 		logrus.Errorf("Exec container %s error %v", containerName, err)

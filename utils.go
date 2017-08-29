@@ -14,14 +14,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func recordContainerInfo(containerPID int, commandArray []string, containerName string) (string, error) {
-	// generate container ID
-	id := randStringBytes(10)
-	createTime := time.Now().Format("2006-01-01 13:01:01")
-	command := strings.Join(commandArray, " ")
-	if containerName == "" {
-		containerName = id
-	}
+func recordContainerInfo(containerPID int, comArray []string, containerName, volume, id string) error {
+	createTime := time.Now().Format("2006-01-02 15:04:05")
+	command := strings.Join(comArray, " ")
 	containerInfo := &container.ContainerInfo{
 		ID:          id,
 		Pid:         strconv.Itoa(containerPID),
@@ -29,32 +24,33 @@ func recordContainerInfo(containerPID int, commandArray []string, containerName 
 		CreatedTime: createTime,
 		Status:      container.RUNNING,
 		Name:        containerName,
+		Volume:      volume,
 	}
 	jsonBytes, err := json.Marshal(containerInfo)
 	if err != nil {
 		logrus.Errorf("Record container info err %v", err)
-		return "", err
+		return err
 	}
 	jsonStr := string(jsonBytes)
 
 	dirURL := fmt.Sprintf(container.DefaultInfoLocation, containerName)
 	if err := os.MkdirAll(dirURL, 0622); err != nil {
 		logrus.Errorf("Mkdir error %s error %v", dirURL, err)
-		return "", err
+		return err
 	}
 	fileName := dirURL + container.ConfigName
 	file, err := os.Create(fileName)
 	defer file.Close()
 	if err != nil {
 		logrus.Errorf("Create file %s error %v", fileName, err)
-		return "", err
+		return err
 	}
 	// write jsonified data to `config.json`
 	if _, err := file.WriteString(jsonStr); err != nil {
 		logrus.Errorf("File write string error %v", err)
-		return "", err
+		return err
 	}
-	return containerName, nil
+	return nil
 }
 
 func deleteContainerInfo(containerName string) {
@@ -103,4 +99,18 @@ func getContainerPidByName(containerName string) (string, error) {
 		return "", err
 	}
 	return contentInfo.Pid, nil
+}
+
+func getEnvByPid(pid string) []string {
+	// environment variables stored in /proc/PID/environ
+	path := fmt.Sprintf("/proc/%s/environ", pid)
+	contentBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		logrus.Errorf("Read file %s err %v", path, err)
+		return nil
+	}
+	// data in environ is seperated by `\u000`
+	envs := strings.Split(string(contentBytes), "\u0000")
+	logrus.Infof("loaded envs: %v", envs)
+	return envs
 }

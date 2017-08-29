@@ -11,21 +11,27 @@ import (
 )
 
 // Run envokes the command
-func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, volume, containerName string) {
-	parent, writePipe := container.NewParentProcess(tty, volume, containerName)
+func Run(tty bool, res *subsystems.ResourceConfig, volume, containerName, imageName string, comArray, envSlice []string) {
+	id := randStringBytes(10)
+	if containerName == "" {
+		containerName = id
+	}
+
+	parent, writePipe := container.NewParentProcess(tty, volume, containerName, imageName, envSlice)
 	if parent == nil {
 		logrus.Errorf("New parent process error")
 		return
 	}
 	if err := parent.Start(); err != nil {
 		logrus.Error(err)
+		return
 	}
-	containerName, err := recordContainerInfo(parent.Process.Pid, comArray, containerName)
-	if err != nil {
+
+	if err := recordContainerInfo(parent.Process.Pid, comArray, containerName, volume, id); err != nil {
 		logrus.Errorf("Record container info error %v", err)
 		return
 	}
-	cgroupManager := cgroups.NewCgroupManager("/root/xperi/xperiMoby-cgroup")
+	cgroupManager := cgroups.NewCgroupManager(container.RootURL + "xperiCgroup")
 	defer cgroupManager.Destroy()
 	cgroupManager.Set(res)
 	// add container processes to cgroup
@@ -33,9 +39,7 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, volume, co
 	sendInitCommand(comArray, writePipe)
 	if tty {
 		parent.Wait()
-		mntURL := "/root/xperi/mnt/"
-		rootURL := "/root/xperi/"
-		container.DeleteWorkSpace(rootURL, mntURL, volume)
+		container.DeleteWorkSpace(volume, containerName)
 		deleteContainerInfo(containerName)
 	}
 	os.Exit(0)

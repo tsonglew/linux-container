@@ -19,7 +19,6 @@ func RunContainerInitProcess() error {
 		return fmt.Errorf("Run container get user command error, cmdArray is nil")
 	}
 	setUpMount()
-
 	path, err := exec.LookPath(cmdArray[0])
 	if err != nil {
 		logrus.Errorf("Exec loop path error %v", err)
