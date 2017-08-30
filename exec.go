@@ -23,8 +23,6 @@ func ExecContainer(containerName string, comArray []string) {
 		return
 	}
 	cmdStr := strings.Join(comArray, " ")
-	logrus.Infof("container pid %s", pid)
-	logrus.Infof("command %s", cmdStr)
 
 	cmd := exec.Command("/proc/self/exe", "exec")
 	cmd.Stdin = os.Stdin

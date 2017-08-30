@@ -111,6 +111,5 @@ func getEnvByPid(pid string) []string {
 	}
 	// data in environ is seperated by `\u000`
 	envs := strings.Split(string(contentBytes), "\u0000")
-	logrus.Infof("loaded envs: %v", envs)
 	return envs
 }

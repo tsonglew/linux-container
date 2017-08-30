@@ -15,19 +15,31 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/vishvananda/netlink"
+  packages = [".","nl"]
+  revision = "f5a6f697a596c788d474984a38a0ac4ba0719e93"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/vishvananda/netns"
+  packages = ["."]
+  revision = "86bef332bfc3b59b7624a600bd53009ce91a9829"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "eb71ad9bd329b5ac0fd0148dd99bd62e8be8e035"
+  revision = "81e90905daefcd6fd217b62423c0908922eadb30"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix","windows"]
-  revision = "07c182904dbd53199946ba614a412c61d3c548f5"
+  revision = "ab9e364efd8b52800ff7ee48a9ffba4e0ed78dfb"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "18edb3a4e5d988d37b180e328ad6d00895f908f482126a176dcef1347160ffaf"
+  inputs-digest = "52025b41547c5fd9e2dbeaf9008b394fa606db9b8616fd432c421103fbf78746"
   solver-name = "gps-cdcl"
   solver-version = 1

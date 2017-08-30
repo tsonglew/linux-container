@@ -6,6 +6,7 @@ import (
 
 	"github.com/kasheemlew/xperiMoby/cgroups/subsystems"
 	"github.com/kasheemlew/xperiMoby/container"
+	"github.com/kasheemlew/xperiMoby/network"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -47,6 +48,14 @@ var runCommand = cli.Command{
 			Name:  "e",
 			Usage: "set environment",
 		},
+		cli.StringFlag{
+			Name:  "net",
+			Usage: "container network",
+		},
+		cli.StringSliceFlag{
+			Name:  "p",
+			Usage: "port mapping",
+		},
 	},
 	Action: func(context *cli.Context) error {
 		if len(context.Args()) < 1 {
@@ -60,21 +69,21 @@ var runCommand = cli.Command{
 		}
 
 		imageName := context.Args().Get(0)
-		logrus.Infof("use iamge: %s", imageName)
 		cmdArray := context.Args().Tail()
-		logrus.Infof("all command: %v", cmdArray)
-
 		tty := context.Bool("ti")
-		logrus.Infof("create tty: %v", tty)
 		detach := context.Bool("d")
 		if tty && detach {
 			return fmt.Errorf("ti and d parameter can not both provided")
 		}
-
+		// network
+		network := context.String("net")
+		portmapping := context.StringSlice("p")
+		// volume
 		volume := context.String("v")
 		containerName := context.String("name")
+		// environ
 		envSlice := context.StringSlice("e")
-		Run(tty, resConf, volume, containerName, imageName, cmdArray, envSlice)
+		Run(tty, resConf, volume, containerName, imageName, network, cmdArray, envSlice, portmapping)
 		return nil
 	},
 }
@@ -170,5 +179,61 @@ var removeCommand = cli.Command{
 		containerName := context.Args().Get(0)
 		removeContainer(containerName)
 		return nil
+	},
+}
+
+var networkCommand = cli.Command{
+	Name:  "network",
+	Usage: "container network commands",
+	Subcommands: []cli.Command{
+		{
+			Name:  "create",
+			Usage: "create a container network",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "driver",
+					Usage: "network driver",
+				},
+				cli.StringFlag{
+					Name:  "subnet",
+					Usage: "subnet cidr",
+				},
+			},
+			Action: func(context *cli.Context) error {
+				if len(context.Args()) < 1 {
+					return fmt.Errorf("Missing network name")
+				}
+				network.Init()
+				err := network.CreateNetwork(context.String("driver"), context.String("subnet"), context.Args()[0])
+				if err != nil {
+					return fmt.Errorf("create network error: %v", err)
+				}
+				return nil
+			},
+		},
+		{
+			Name:  "list",
+			Usage: "list container network",
+			Action: func(context *cli.Context) error {
+				network.Init()
+				network.ListNetwork()
+				return nil
+			},
+		},
+		{
+			Name:  "remove",
+			Usage: "remove container network",
+			Action: func(context *cli.Context) error {
+				if len(context.Args()) < 1 {
+					return fmt.Errorf("Missing network name")
+				}
+				network.Init()
+				err := network.DeleteNetwork(context.Args()[0])
+				if err != nil {
+					return fmt.Errorf("remove network error: %v", err)
+				}
+				return nil
+			},
+		},
 	},
 }

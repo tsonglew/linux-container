@@ -24,6 +24,9 @@ func ListContainers() {
 	var containers []*container.ContainerInfo
 	// traversal for container infos
 	for _, file := range files {
+		if file.Name() == "network" {
+			continue
+		}
 		tmpContainer, err := getContainerInfo(file)
 		if err != nil {
 			logrus.Errorf("Get container info error %v", err)

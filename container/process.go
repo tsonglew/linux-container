@@ -11,13 +11,14 @@ import (
 
 // ContainerInfo record information about the container
 type ContainerInfo struct {
-	Pid         string `json:"pid"`
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Command     string `json:"command"`
-	CreatedTime string `json:"createTime"`
-	Status      string `json:"status"`
-	Volume      string `json:"volume"`
+	Pid         string   `json:"pid"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Command     string   `json:"command"`
+	CreatedTime string   `json:"createTime"`
+	Status      string   `json:"status"`
+	Volume      string   `json:"volume"`
+	PortMapping []string `json:"portmapping"`
 }
 
 var (
