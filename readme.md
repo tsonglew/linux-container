@@ -25,7 +25,7 @@ export GOROOT_BOOTSTRAP=$GOROOT
 
 ## Get dep (golang dependence manager)
 
-```
+```shell
 $ go get -u github.com/golang/dep/cmd/dep
 $ cd $GOPATH/src/golang/dep/
 $ go build
@@ -123,4 +123,4 @@ OPTIONS:
    --net value       container network
    -p value          port mapping
 
-``
+```
