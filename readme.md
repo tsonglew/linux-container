@@ -4,7 +4,9 @@ An Experiment with Linux Container
 
 ## Get Ubuntu
 
-[Download](https://www.ubuntu.com/download) Ubuntu distribution 
+[Download](https://www.ubuntu.com/download) Ubuntu distribution
+
+Ubuntu14.04 with kernal 4.4.0-31-generic is recommended
 
 ## Get Go
 
